@@ -1,0 +1,44 @@
+import processing.serial.*;
+     //LIBRARYS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+import cc.arduino.*;
+
+Arduino arduino;     //creates a new arduino object
+
+int pressurePin = 0;     //defines pressure sensor pin as # 0
+int analogValue = 0;     //number here is to avoid nullpointexeption error
+
+void setup(){
+  size(600,600);
+  println(Arduino.list());     //prints the arduino status in the box down there
+  arduino = new Arduino(this, Arduino.list()[3], 57600);     //defines what the arduino object is [port #], serial #
+  for (int i = 0; i <= 13; i++)     //creates 13 input pins for the 13 arduino pins
+    arduino.pinMode(i, Arduino.INPUT);     //makes the pin automatically input. It can be changed 
+}
+
+void draw(){
+  analogValue = arduino.analogRead(pressurePin);     //this reads the value of the pressure sensor
+  background(255);     //makes a white background
+  fill(0);     //fills objects with black
+  textSize(50);     //this is the size of the text
+  
+  
+  for(int i = 0; i<=52; i++){     //this for loop is the wiggle filter
+    int z = i * 20;
+    if(analogValue>=z-15 && analogValue<z+15){     //15 instead of 10 makes it way more stable
+      analogValue = z;
+      break;     //Geodude, use rock break!
+    }
+  }
+  /*
+  the for loop takes the value of the pressure sensor as input, and rounds it to the closest multiple of 20.
+  the variable z is all the diffrent multiples of 20. each time the for loop runs through, 20 is added to z, untill z is above 1000.
+  and if the pressor sensor value is withis 10 above and below z,or whithin z,s range, it makes the value equal to z. 
+  the break ti to make the code run faster.      (min of range)     (z)     (max of range)                      
+  lets say z is 460:                                       |450-----460-----470|
+  if the pressure sensor value is anywhere between 450 and 470(460's range), the value becomes equal to z(460 in this case)
+  */
+  
+  
+  text(analogValue,200,200);     //displays the new pressure sensor value
+  ellipse(300,400,analogValue/5,analogValue/5);     //circle using the pressure sensor value as diameter
+}
